@@ -17,7 +17,7 @@ jobs:
     - persist_to_workspace:
         root: .
         paths:
-        - config/main_template.template
+        - config/transactional_template.html
         - config/secrets.json
 
   build:
@@ -39,7 +39,7 @@ jobs:
         - .circleci/artifactory_copy.sh
         - infrastructure/APP_NAME
         - infrastructure/VERSION
-        - config/main_template.template
+        - config/transactional_template.html
         - config/secrets.json
 
 

@@ -1,6 +1,7 @@
 package main
 
 import (
+	"fmt"
 	"context"
 	"encoding/json"
 	"strings"
@@ -37,10 +38,12 @@ func handler(ctx context.Context, sqsEvent events.SQSEvent) error {
 	if err != nil {
 		log.Fatal("Failed to read email secrets")
 	}
-	mainTemplate := string(utils.ReadBytesFromFile("config/main_template.template"))
+	mainTemplate := string(utils.ReadBytesFromFile("config/transactional_template.html"))
 
+	fmt.Println(sqsEvent)
 	for _, event := range sqsEvent.Records {
 		var request SendMailRequest
+		log.Println(event.Body)
 		err := json.Unmarshal([]byte(event.Body), &request)
 		if err != nil {
 			log.Fatal("Failed to unmarshal request")
@@ -73,9 +76,10 @@ func generateMessage(template string, body string) string {
 }
 
 func sendMail(message string, sendConfig *SendConfig) error {
+	mime := "MIME-version: 1.0;\nContent-Type: text/html; charset=\"UTF-8\";\n\n"
 	msg := "From: Levendula Apartman <" + sendConfig.From + ">\n" +
 		"To:" + sendConfig.To + "\n" +
-		"Subject: " + sendConfig.Subject + "\n\n" +
+		"Subject: " + sendConfig.Subject + "\n" + mime +
 		sendConfig.Message
 
 	err := smtp.SendMail("smtp.gmail.com:587",
